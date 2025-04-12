@@ -10,7 +10,7 @@ from jinja2 import Environment, FileSystemLoader
 app = Flask(__name__)
 optimizations = {}
 
-RESULTS_DIR = "result/manual/tuning"
+RESULTS_DIR = os.path.expanduser("~/mt5-dev/result/manual/tuning")
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
 def run_mt5_optimization(opt_id, params):

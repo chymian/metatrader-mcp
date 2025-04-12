@@ -32,7 +32,7 @@ This project provides a fully automated workflow for running, optimizing, and do
   - `GET /optimization_status/<id>`: Check optimization status.
   - `GET /optimization_results/<id>`: Get results.
   - `POST /save_results`: Save results as HTML/Markdown/CSV/JSON.
-- Results are saved to `result/manual/tuning/<EA_NAME>_tuning.html` and `.md`.
+- Results are saved to `~/mt5-dev/result/manual/tuning/<EA_NAME>_tuning.html` and `.md`.
 
 ### 3. MCP Server
 
@@ -45,7 +45,7 @@ This project provides a fully automated workflow for running, optimizing, and do
 
 - Start the container (Distrobox will run all setup and start the Flask API).
 - Use the MCP server to trigger optimizations and generate reports.
-- Open the HTML/Markdown reports in `result/manual/tuning/` for a clear overview.
+- Open the HTML/Markdown reports in `~/mt5-dev/result/manual/tuning/` for a clear overview.
 
 ---
 
@@ -55,9 +55,16 @@ This project provides a fully automated workflow for running, optimizing, and do
 - `src/mt5_flask_api.py`: Flask API for optimization.
 - `src/mt5-server.ts`: MCP server logic.
 - `docs/README.md`: This documentation.
-- `result/manual/tuning/`: All generated reports and results.
+- `~/mt5-dev/result/manual/tuning/`: All generated reports and results.
 
 ---
+
+## Working Directory & Configuration
+
+By default, all logs, data, results, and outputs are stored in `~/mt5-dev` for portability and consistency.  
+To override any configuration value for your local development, copy `src/mt5.ini` to `src/mt5-dev.ini` and customize as needed.  
+The `src/mt5-dev.ini` file is ignored by git and will not be tracked or pushed.
+
 
 ## Version Control
 
