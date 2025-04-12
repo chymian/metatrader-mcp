@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "metatrader5": {
+      "command": "node",
+      "args": ["/srv/homes/dev/paia/trade/metatrader-mcp/server.js"],
+      "env": {
+        "MT5_API_ENDPOINT": "http://localhost:5555",
+        "MT5_API_KEY": ""
+      },
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
