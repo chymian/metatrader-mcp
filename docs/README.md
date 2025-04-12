@@ -1,149 +1,78 @@
-# MetaTrader 5 MCP Server
+# MetaTrader 5 MCP Server & Distrobox Automation
 
-This is a Model Context Protocol (MCP) server that provides tools for controlling and interacting with MetaTrader 5 through a REST API and supports programmatic strategy optimization.
+This project provides a fully automated workflow for running, optimizing, and documenting MetaTrader 5 (MT5) Expert Advisors (EAs) using a Distrobox container, a Flask REST API, and an MCP server.
 
 ---
 
 ## Features
 
-The MetaTrader 5 MCP Server provides the following tools:
-
-- `get_account_info` - Get account information from MetaTrader 5
-- `get_symbol_price` - Get current price for a symbol
-- `get_open_positions` - Get all open positions
-- `get_pending_orders` - Get all pending orders
-- `create_order` - Create a new trading order
-- `modify_order` - Modify stop loss or take profit for an order or position
-- `close_position` - Close an open position
-- `delete_order` - Delete a pending order
-
-### Optimization Tools (NEW)
-
-- `run_optimization` - Start a strategy optimization run via the MT5 Flask API bridge
-- `get_optimization_status` - Query the status of a running optimization
-- `get_optimization_results` - Fetch results/statistics of a completed optimization
-- `save_optimization_results` - Save optimization results to a file (CSV/JSON)
+- **MetaTrader 5 in Wine/Distrobox**: Automated setup and launch.
+- **Flask REST API**: Programmatic optimization of EAs, with endpoints for running, monitoring, and saving results.
+- **MCP Server**: Unified interface for trading, optimization, and result retrieval.
+- **Automated Documentation**: Optimization results are saved as clear HTML and Markdown reports for each EA.
+- **Git Version Control**: All code and configuration are versioned from the start.
 
 ---
 
-## Prerequisites
+## Quickstart
 
-1. MetaTrader 5 terminal installed and running in Wine inside a Distrobox container (see `src/mt5.ini` for setup).
-2. Python with the `MetaTrader5` package installed in the Wine environment.
-3. Flask REST API running on the Linux host (see below for API details).
+### 1. Distrobox Container Setup
 
----
+- See `src/mt5.ini` for a complete, automated Distrobox config.
+- On container creation, the following are installed and configured:
+  - Wine, MT5, Python3, pip, Flask, MetaTrader5, pandas, jinja2, git, and all required tools.
+  - The Flask API is started automatically.
+  - A git repository is initialized and all files are committed.
 
-## Flask REST API for Optimization
+### 2. Flask REST API
 
-The MCP server expects a Flask API (Python) running on the host (default: `http://localhost:5000`) with the following endpoints:
+- Located at `src/mt5_flask_api.py`.
+- Endpoints:
+  - `POST /optimize`: Start an optimization run.
+  - `GET /optimization_status/<id>`: Check optimization status.
+  - `GET /optimization_results/<id>`: Get results.
+  - `POST /save_results`: Save results as HTML/Markdown/CSV/JSON.
+- Results are saved to `result/manual/tuning/<EA_NAME>_tuning.html` and `.md`.
 
-- `POST /optimize` — Start an optimization run. Accepts EA, symbol, period, date range, deposit, params, optimization_mode.
-- `GET /optimization_status/<id>` — Get the status of a running optimization.
-- `GET /optimization_results/<id>` — Fetch results/statistics for a completed optimization.
-- `POST /save_results` — Save results to a file (CSV/JSON), with path and format options.
+### 3. MCP Server
 
-See the research paper in `docs/To programmatically run strategy optimiz.md` for a full example and setup instructions.
+- See `src/mt5-server.ts` for the MCP server implementation.
+- Tools include:
+  - Trading operations (get_account_info, create_order, etc.)
+  - Optimization operations (run_optimization, get_optimization_status, get_optimization_results, save_optimization_results)
 
----
+### 4. Usage Example
 
-## Usage
-
-### Starting the server
-
-```
-npm start
-```
-
-### MCP Configuration
-
-Add the following to your MCP settings configuration:
-
-```json
-{
-  "mcpServers": {
-    "metatrader5": {
-      "command": "node",
-      "args": ["/path/to/metatrader-mcp/build/index.js"],
-      "env": {
-        "MT5_API_ENDPOINT": "http://localhost:5555",
-        "MT5_API_KEY": "",
-        "MT5_FLASK_API": "http://localhost:5000"
-      },
-      "disabled": false,
-      "autoApprove": []
-    }
-  }
-}
-```
+- Start the container (Distrobox will run all setup and start the Flask API).
+- Use the MCP server to trigger optimizations and generate reports.
+- Open the HTML/Markdown reports in `result/manual/tuning/` for a clear overview.
 
 ---
 
-## Tool Usage Examples
+## Directory Structure
 
-### Run Optimization
-
-```js
-use_mcp_tool({
-  server_name: "metatrader5",
-  tool_name: "run_optimization",
-  arguments: {
-    symbol: "EURUSD",
-    ea: "MyExpert.ex5",
-    period: "H1",
-    date_from: "2024-01-01",
-    date_to: "2024-03-01",
-    deposit: 10000,
-    params: {
-      "TakeProfit": { min: 10, max: 100, step: 10 },
-      "StopLoss": { min: 10, max: 100, step: 10 }
-    },
-    optimization_mode: "all_possible"
-  }
-})
-```
-
-### Poll for Status
-
-```js
-use_mcp_tool({
-  server_name: "metatrader5",
-  tool_name: "get_optimization_status",
-  arguments: { optimization_id: "..." }
-})
-```
-
-### Fetch and Save Results
-
-```js
-use_mcp_tool({
-  server_name: "metatrader5",
-  tool_name: "get_optimization_results",
-  arguments: { optimization_id: "..." }
-})
-use_mcp_tool({
-  server_name: "metatrader5",
-  tool_name: "save_optimization_results",
-  arguments: { optimization_id: "...", format: "csv", path: "/path/to/results.csv" }
-})
-```
+- `src/mt5.ini`: Distrobox config for full automation.
+- `src/mt5_flask_api.py`: Flask API for optimization.
+- `src/mt5-server.ts`: MCP server logic.
+- `docs/README.md`: This documentation.
+- `result/manual/tuning/`: All generated reports and results.
 
 ---
 
-## Distrobox/Container Setup
+## Version Control
 
-See `src/mt5.ini` for a sample Distrobox container configuration to run MT5 and the Flask API in a reproducible environment.
-
----
-
-## Implementation Notes
-
-- The MCP server acts as a client to both the MetaTrader 5 REST API and the Flask optimization API.
-- All optimization tools are compatible with "genetic" and "all_possible" modes.
-- Results can be fetched and saved in JSON or CSV format.
+- The project is initialized as a git repository on first container start.
+- All code, configuration, and documentation are versioned.
 
 ---
 
 ## References
 
-- See `docs/To programmatically run strategy optimiz.md` for the research paper and full technical background.
+- See `docs/To programmatically run strategy optimiz.md` for research and technical background.
+- For more details on the MCP server and API, see the inline documentation in each source file.
+
+---
+
+## Maintenance
+
+- Always update this README and commit changes to git when modifying the workflow, API, or server logic.
