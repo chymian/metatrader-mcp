@@ -18,6 +18,13 @@ This project provides a fully automated workflow for running, optimizing, and do
 
 ### 1. Distrobox Container Setup
 
+To assemble and enter the Distrobox container, run the following commands from the project root:
+
+```bash
+distrobox-assemble create --file src/mt5.ini -R
+distrobox-enter mt5
+```
+
 - See `src/mt5.ini` for a complete, automated Distrobox config.
 - On container creation, the following are installed and configured:
   - Wine, MT5, Python3, pip, Flask, MetaTrader5, pandas, jinja2, git, and all required tools.
@@ -27,6 +34,11 @@ This project provides a fully automated workflow for running, optimizing, and do
 ### 2. Flask REST API
 
 - Located at `src/mt5_flask_api.py`.
+- The API is accessible from the host at [http://localhost:5000](http://localhost:5000) (port 5000 is published by default; see `src/mt5.ini`).
+- Example: test the API from your host system with:
+  ```bash
+  curl http://localhost:5000/optimization_status/some-id
+  ```
 - Endpoints:
   - `POST /optimize`: Start an optimization run.
   - `GET /optimization_status/<id>`: Check optimization status.
@@ -49,37 +61,8 @@ This project provides a fully automated workflow for running, optimizing, and do
 
 ---
 
-## Directory Structure
-
-- `src/mt5.ini`: Distrobox config for full automation.
-- `src/mt5_flask_api.py`: Flask API for optimization.
-- `src/mt5-server.ts`: MCP server logic.
-- `docs/README.md`: This documentation.
-- `~/mt5-dev/result/manual/tuning/`: All generated reports and results.
-
----
-
 ## Working Directory & Configuration
 
 By default, all logs, data, results, and outputs are stored in `~/mt5-dev` for portability and consistency.  
 To override any configuration value for your local development, copy `src/mt5.ini` to `src/mt5-dev.ini` and customize as needed.  
 The `src/mt5-dev.ini` file is ignored by git and will not be tracked or pushed.
-
-
-## Version Control
-
-- The project is initialized as a git repository on first container start.
-- All code, configuration, and documentation are versioned.
-
----
-
-## References
-
-- See `docs/To programmatically run strategy optimiz.md` for research and technical background.
-- For more details on the MCP server and API, see the inline documentation in each source file.
-
----
-
-## Maintenance
-
-- Always update this README and commit changes to git when modifying the workflow, API, or server logic.
